@@ -16,7 +16,7 @@ export async function sendDailyUpdate({
   const token = process.env.ZOHO_OAUTH_TOKEN;
   const accountId = process.env.ZOHO_MAIL_ACCOUNT_ID;
   const from = process.env.ZOHO_MAIL_FROM;
-  const to = process.env.ZOHO_MAIL_to;
+  const to = process.env.ZOHO_MAIL_TO;
 
   if (!token || !accountId || !from) {
     throw new Error("Missing Zoho Mail environment variables");
@@ -24,22 +24,30 @@ export async function sendDailyUpdate({
 
   const subject = `Daily Update - Himanshu Sheetlani - ${date}`;
 
-  const content = `Hello sir,
+  const content = 
+    `<div>
+      <p>Hello sir,</p>
 
-In Time:
-${inTime}
-Out Time:
-${outTime}
+      <p>
+        <strong>In Time:</strong> ${inTime}<br/>
+        <strong>Out Time:</strong> ${outTime}
+      </p>
 
-Please find my updates for today below:
-${tasks}
-Please let me know if any additional details are required.
+      <p>Please find my updates for today below:</p>
 
-Thanks & Regards,
-Himanshu Sheetlani
-Graduate Engineer Trainee
-Service Engineering`;
+      <ul>
+        ${tasks}
+      </ul>
 
+      <p>Please let me know if any additional details are required.</p>
+
+      <p>
+        Thanks & Regards,<br/>
+        Himanshu Sheetlani<br/>
+        Graduate Engineer Trainee<br/>
+        Service Engineering
+      </p>
+    </div>`;
   const response = await fetch(
     `https://mail.zoho.in/api/accounts/${accountId}/messages`,
     {

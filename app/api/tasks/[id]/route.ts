@@ -167,7 +167,7 @@ export async function POST(
     }
 
     // Get today's date in Indian timezone
-    const today = new Intl.DateTimeFormat("en-CA", {
+    const today = new Intl.DateTimeFormat("en-IN", {
       timeZone: "Asia/Kolkata",
       year: "numeric",
       month: "2-digit",
@@ -185,7 +185,7 @@ export async function POST(
     // Find today's history entry
     const todayHistory = task.tasksHistory.find(
       (history) =>
-        new Intl.DateTimeFormat("en-CA", {
+        new Intl.DateTimeFormat("en-IN", {
           timeZone: "Asia/Kolkata",
           year: "numeric",
           month: "2-digit",

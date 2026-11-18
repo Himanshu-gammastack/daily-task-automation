@@ -17,30 +17,23 @@ const getUserId = (req: NextRequest) => {
 };
 
 
+
 function parseInTime(date: string, time: string): Date {
-  const match = time.trim().match(
-    /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i
-  );
+  const match = time.trim().match(/^([01]\d|2[0-3]):([0-5]\d)$/);
 
   if (!match) {
-    throw new Error(`Invalid inTime format: ${time}`);
+    throw new Error(`Invalid inTime format: ${time}. Expected HH:mm`);
   }
 
-  let hours = Number(match[1]);
+  const [year, month, day] = date.split("-").map(Number);
+  const hours = Number(match[1]);
   const minutes = Number(match[2]);
-  const period = match[3].toUpperCase();
-
-  if (hours < 1 || hours > 12 || minutes > 59) {
-    throw new Error("Invalid inTime value");
-  }
-
-  if (period === "PM" && hours !== 12) hours += 12;
-  if (period === "AM" && hours === 12) hours = 0;
 
   return new Date(
-    `${date}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00+05:30`
+    Date.UTC(year, month - 1, day, hours, minutes) - 330 * 60 * 1000
   );
 }
+
 
 function calculateOutTime(): Date {
   const now = Date.now();
@@ -52,11 +45,16 @@ function calculateOutTime(): Date {
 }
 
 function formatTime(date: Date): string {
-  return new Intl.DateTimeFormat("en-US", {
+  if (!(date instanceof Date) || isNaN(date.getTime())) {
+    console.error("Invalid date passed to formatTime:", date);
+    throw new Error("Invalid date passed to formatTime");
+  }
+
+  return new Intl.DateTimeFormat("en-GB", {
     timeZone: "Asia/Kolkata",
     hour: "2-digit",
     minute: "2-digit",
-    hour12: true,
+    hourCycle: "h23",
   }).format(date);
 }
 
@@ -118,12 +116,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Match the requested calendar date.
+    const getISTDate = (date: Date | string) => {
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date(date));
+    };
+    
+    // Match the requested calendar date
     const history = userTask.tasksHistory.find(
-      (item) =>
-        new Date(item.date).toISOString().slice(0, 10) === date
+      (item) => getISTDate(item.date) === date
     );
-
+    
     if (!history) {
       return NextResponse.json(
         { success: false, message: "No task history found for this date" },
@@ -138,57 +144,63 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. Calculate working hours.
     const inTime = parseInTime(date, history.inTime);
+
     const outTime = calculateOutTime();
-    saveToDb(date, userId, outTime)
-
     if (outTime <= inTime) {
-      throw new Error("Checkout time must be after check-in time");
+      return NextResponse.json(
+        { success: false, message: "Checkout time must be after check-in time" },
+        { status: 400 }
+      );
     }
-
+    
+      
     const totalHours = calculateHours(inTime, outTime);
-
-    // 2. Sort tasks by completion timestamp.
+      
     const completedTasks = [...history.taskList].sort(
       (a, b) =>
-        new Date(a.endTime).getTime() -
-        new Date(b.endTime).getTime()
+        parseInTime(date, a.endTime).getTime() -
+        parseInTime(date, b.endTime).getTime()
     );
-
+    
     // 3. Calculate assumed task breakdown.
     let previousEndTime = inTime;
-
+    
     const taskBreakdown = completedTasks.map((task) => {
-      const endTime = new Date(task.endTime);
-
-      if (
-        endTime <= previousEndTime ||
-        endTime > outTime
-      ) {
+      const endTime = parseInTime(date, task.endTime);
+    
+      if (endTime <= previousEndTime || endTime > outTime) {
         throw new Error(
           `Invalid completion time for task: ${task.taskTitle}`
         );
       }
-
+    
       const duration = calculateHours(previousEndTime, endTime);
-
+    
       const breakdown = {
         taskTitle: task.taskTitle,
         startTime: formatTime(previousEndTime),
         endTime: formatTime(endTime),
         timeTaken: duration,
       };
-
+    
       previousEndTime = endTime;
-
+    
       return breakdown;
     });
+    
+    await saveToDb(date, userId, outTime);
+    
 
     // 4. Prepare task descriptions for email.
+    // Prepare task descriptions for HTML email
+    const emailTaskList = taskBreakdown
+      .map((task) => `<li>${task.taskTitle}</li>`)
+      .join("");
+
     const taskDescription = taskBreakdown
       .map((task, index) =>
-        `${index + 1}. ${task.taskTitle} (${task.timeTaken} hours)`
+        `- ${task.taskTitle}`
       )
       .join("\n");
 
@@ -201,12 +213,11 @@ export async function POST(request: NextRequest) {
       to: process.env.DAILY_UPDATE_TO!,
       inTime: formatTime(inTime),
       outTime: formatTime(outTime),
-      tasks: taskDescription,
+      tasks: emailTaskList,
       date: formatDate(date),
     });
 
     // 6. Prepare Zoho Sheet row.
-    // date + 4 matches your example: 17 -> 21.
     const day = Number(date.split("-")[2]);
 
     const sheetData = [

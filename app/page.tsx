@@ -24,14 +24,14 @@ export default function Todo() {
   const [dark, setDark] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const todayISO = new Intl.DateTimeFormat("en-US", {
+  const todayISO = new Intl.DateTimeFormat("en-IN", {
     timeZone: "Asia/Kolkata",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   }).format(new Date());
 
-  const todayDisplay = new Date().toLocaleDateString("en-US", {
+  const todayDisplay = new Date().toLocaleDateString("en-IN", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -60,7 +60,7 @@ export default function Todo() {
 
       const todayData = history.find(
         (h: TaskHistory) =>
-          new Date(h.date).toLocaleDateString("en-US", {
+          new Date(h.date).toLocaleDateString("en-IN", {
             timeZone: "Asia/Kolkata",
           }) === todayISO
       );
@@ -110,8 +110,6 @@ export default function Todo() {
     }
 
     setLoading(true);
-    console.log(inTime)
-
     try {
       const res = await fetch("/api/startDay", {
         method: "POST",

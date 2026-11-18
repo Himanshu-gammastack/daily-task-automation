@@ -29,10 +29,21 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
 
-    // Today's date
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayIST = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Kolkata",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(new Date());
 
+    const [year, month, day] = todayIST.split("-").map(Number);
+
+    const today = new Date(
+      Date.UTC(year, month - 1, day) - 330 * 60 * 1000
+    );
+
+    console.log("it should be new date: ", today);
+    
     // Find user's task document
     let task = await Task.findOne({ userId });
 

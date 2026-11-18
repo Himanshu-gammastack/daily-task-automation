@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const today = new Intl.DateTimeFormat("en-US", {
+    const today = new Intl.DateTimeFormat("en-IN", {
       timeZone: "Asia/Kolkata",
       year: "numeric",
       month: "2-digit",
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
 
     const todayHistory = task.tasksHistory.find(
       (history) => {
-        const historyDate = new Intl.DateTimeFormat("en-US", {
+        const historyDate = new Intl.DateTimeFormat("en-IN", {
           timeZone: "Asia/Kolkata",
           year: "numeric",
           month: "2-digit",
