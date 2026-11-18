@@ -4,6 +4,17 @@ import { connectDB } from "@/utils/db";
 import Task from "@/model/Tasks";
 import { sendDailyUpdate } from "./controller/sendMail";
 import { updateZohoWorksheet } from "./controller/updateSheet";
+import { getUser } from "@/utils/auth";
+
+const getUserId = (req: NextRequest) => {
+  const userId = getUser(req);
+
+  if (!userId) {
+    return null;
+  }
+
+  return userId;
+};
 
 
 function parseInTime(date: string, time: string): Date {
@@ -75,7 +86,7 @@ async function saveToDb(date: string, userId: string, outTime: Date){
 export async function POST(request: NextRequest) {
   try {
     const { date } = await request.json();
-
+    
     // Expected format: YYYY-MM-DD
     if (
       typeof date !== "string" ||
@@ -89,9 +100,14 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    // TODO: Replace this with the authenticated user's ID.
-    // Never trust a userId supplied by an unauthenticated client.
-    const userId = "YOUR_AUTHENTICATED_USER_ID";
+    const userId = getUserId(request);
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
     const userTask = await Task.findOne({ userId }).lean();
 

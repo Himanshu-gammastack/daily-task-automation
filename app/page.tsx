@@ -148,7 +148,9 @@ export default function Todo() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/tasks/end-day", {
+      const todayISO = new Date().toISOString().split("T")[0];
+
+      const res = await fetch("/api/endDay", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -222,7 +224,7 @@ export default function Todo() {
 // Complete task
 const completeTask = async (taskId: string) => {
   try {
-    const res = await fetch(`/api/tasks/${taskId}/complete`, {
+    const res = await fetch(`/api/tasks/${taskId}`, {
       method: "POST",
     });
 

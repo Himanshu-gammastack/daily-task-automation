@@ -3,6 +3,7 @@ import mongoose, { Schema, Model } from "mongoose";
 
 interface IActiveTask {
   taskTitle: string;
+  _id?: mongoose.Types.ObjectId;
 }
 
 interface ICompletedTask {
