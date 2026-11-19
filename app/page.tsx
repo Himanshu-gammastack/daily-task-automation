@@ -23,20 +23,30 @@ export default function Todo() {
   const [inTime, setInTime] = useState("");
   const [dark, setDark] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [todayISO, setTodayISO] = useState("");
+  const [todayDisplay, setTodayDisplay] = useState("");
 
-  const todayISO = new Intl.DateTimeFormat("en-IN", {
-    timeZone: "Asia/Kolkata",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
-
-  const todayDisplay = new Date().toLocaleDateString("en-IN", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    timeZone: "Asia/Kolkata",
-  });
+  useEffect(() => {
+    const now = new Date();
+  
+    const isoDate = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Kolkata",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(now);
+  
+    const displayDate = new Intl.DateTimeFormat("en-IN", {
+      timeZone: "Asia/Kolkata",
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }).format(now);
+  
+    setTodayISO(isoDate);
+    setTodayDisplay(displayDate);
+  }, []);
 
   const completedToday: CompletedTask[] =
     todayHistory?.taskList || [];
