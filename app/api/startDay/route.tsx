@@ -42,8 +42,6 @@ export async function POST(req: NextRequest) {
       Date.UTC(year, month - 1, day) - 330 * 60 * 1000
     );
 
-    console.log("it should be new date: ", today);
-    
     // Find user's task document
     let task = await Task.findOne({ userId });
 
@@ -68,6 +66,7 @@ export async function POST(req: NextRequest) {
         date: today,
         inTime,
         outTime: "",
+        dayEnded: false,
         taskList: [],
       });
     }

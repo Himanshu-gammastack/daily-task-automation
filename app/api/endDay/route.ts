@@ -5,6 +5,7 @@ import Task from "@/model/Tasks";
 import { sendDailyUpdate } from "./controller/sendMail";
 import { updateZohoWorksheet } from "./controller/updateSheet";
 import { getUser } from "@/utils/auth";
+import { getZohoAccessToken } from "./controller/getAuthToken"
 
 const getUserId = (req: NextRequest) => {
   const userId = getUser(req);
@@ -81,6 +82,12 @@ async function saveToDb(date: string, userId: string, outTime: Date){
   });
 }
 
+async function getToken(): Promise<string>{
+  const token = await getZohoAccessToken();
+  if (token) return token;
+  return ""
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { date } = await request.json();
@@ -99,6 +106,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const userId = getUserId(request);
+    const authToken = getToken();
 
     if (!userId) {
       return NextResponse.json(
@@ -188,7 +196,7 @@ export async function POST(request: NextRequest) {
     
       return breakdown;
     });
-    
+    console.log("this is out time", outTime)
     await saveToDb(date, userId, outTime);
     
 
@@ -210,6 +218,7 @@ export async function POST(request: NextRequest) {
 
     // 5. Send daily email.
     const mailResult = await sendDailyUpdate({
+      token: await authToken,
       to: process.env.DAILY_UPDATE_TO!,
       inTime: formatTime(inTime),
       outTime: formatTime(outTime),
@@ -232,6 +241,7 @@ export async function POST(request: NextRequest) {
 
     // 7. Update Zoho Sheet.
     const sheetResult = await updateZohoWorksheet({
+      oauthToken: await authToken,
       data: sheetData,
     });
 

@@ -6,13 +6,14 @@ interface ZohoSheetRow {
 interface UpdateWorksheetParams {
   headerRow?: number;
   data: ZohoSheetRow[];
+  oauthToken: string;
 }
 
 export async function updateZohoWorksheet({
   data,
+  oauthToken,
   headerRow = 4,
 }: UpdateWorksheetParams) {
-  const oauthToken = process.env.ZOHO_OAUTH_TOKEN;
   const resourceId = process.env.ZOHO_SHEET_RESOURCE_ID;
   const worksheetName = process.env.ZOHO_SHEET_SHEET_NAME as string;
 

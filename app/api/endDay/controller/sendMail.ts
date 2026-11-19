@@ -1,5 +1,6 @@
 
 interface SendDailyUpdateParams {
+  token: string;
   to: string;
   inTime: string;
   outTime: string;
@@ -8,12 +9,12 @@ interface SendDailyUpdateParams {
 }
 
 export async function sendDailyUpdate({
+  token,
   inTime,
   outTime,
   tasks,
   date,
 }: SendDailyUpdateParams) {
-  const token = process.env.ZOHO_OAUTH_TOKEN;
   const accountId = process.env.ZOHO_MAIL_ACCOUNT_ID;
   const from = process.env.ZOHO_MAIL_FROM;
   const to = process.env.ZOHO_MAIL_TO;
