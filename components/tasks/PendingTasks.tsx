@@ -109,12 +109,11 @@ export default function PendingTasks({
                 </div>
               ) : (
                 <>
-                  <span className="text-sm flex-1 min-w-0 break-words">
+                  <span className="text-sm flex-1 min-w-0 wrap-break-word">
                     {task.taskTitle}
                   </span>
 
                   <div className="flex items-center gap-1 shrink-0">
-                    {/* {outTime? } */}
                     <button
                       disabled={Boolean(outTime)}
                       onClick={() => onComplete(task._id)}
