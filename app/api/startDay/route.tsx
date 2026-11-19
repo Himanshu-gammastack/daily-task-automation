@@ -66,7 +66,6 @@ export async function POST(req: NextRequest) {
         date: today,
         inTime,
         outTime: "",
-        dayEnded: false,
         taskList: [],
       });
     }

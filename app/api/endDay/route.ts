@@ -70,16 +70,35 @@ function calculateHours(start: Date, end: Date): number {
   ) / 100;
 }
 
-async function saveToDb(date: string, userId: string, outTime: Date){
-  await Task.updateOne({
-    userId,
-    "tasksHistory.date": date,
-  },
-  {
-    $set: {
-      "tasksHistory.$.outTime": outTime,
-    },
-  });
+const getISTDate = (date: Date | string) => {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(date));
+};
+
+async function saveToDb(date: string, userId: string, outTime: Date) {
+  await connectDB();
+
+  const task = await Task.findOne({ userId });
+
+  if (!task) {
+    throw new Error("Task document not found");
+  }
+
+  const history = task.tasksHistory.find(
+    (item) => getISTDate(item.date) === date
+  );
+
+  if (!history) {
+    throw new Error("Task history not found");
+  }
+
+  history.outTime = formatTime(outTime);
+
+  await task.save();
 }
 
 async function getToken(): Promise<string>{
@@ -106,7 +125,7 @@ export async function POST(request: NextRequest) {
     await connectDB();
 
     const userId = getUserId(request);
-    const authToken = getToken();
+    const authToken = await getToken();
 
     if (!userId) {
       return NextResponse.json(
@@ -123,15 +142,6 @@ export async function POST(request: NextRequest) {
         { status: 404 }
       );
     }
-
-    const getISTDate = (date: Date | string) => {
-      return new Intl.DateTimeFormat("en-CA", {
-        timeZone: "Asia/Kolkata",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }).format(new Date(date));
-    };
     
     // Match the requested calendar date
     const history = userTask.tasksHistory.find(
@@ -196,7 +206,6 @@ export async function POST(request: NextRequest) {
     
       return breakdown;
     });
-    console.log("this is out time", outTime)
     await saveToDb(date, userId, outTime);
     
 
@@ -218,7 +227,7 @@ export async function POST(request: NextRequest) {
 
     // 5. Send daily email.
     const mailResult = await sendDailyUpdate({
-      token: await authToken,
+      token: authToken,
       to: process.env.DAILY_UPDATE_TO!,
       inTime: formatTime(inTime),
       outTime: formatTime(outTime),
@@ -260,7 +269,6 @@ export async function POST(request: NextRequest) {
       sheetResult,
     });
   } catch (error) {
-    console.error("Daily report error:", error);
 
     return NextResponse.json(
       {

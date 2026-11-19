@@ -11,6 +11,7 @@ interface Props {
   onEdit: (taskId: string, taskTitle: string) => void;
   onDelete: (taskId: string) => void;
   onComplete: (taskId: string) => void;
+  outTime?: string;
 }
 
 export default function PendingTasks({
@@ -19,6 +20,7 @@ export default function PendingTasks({
   onEdit,
   onDelete,
   onComplete,
+  outTime,
 }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedTitle, setEditedTitle] = useState("");
@@ -112,10 +114,12 @@ export default function PendingTasks({
                   </span>
 
                   <div className="flex items-center gap-1 shrink-0">
+                    {/* {outTime? } */}
                     <button
+                      disabled={Boolean(outTime)}
                       onClick={() => onComplete(task._id)}
-                      className="p-2 text-green-500 hover:bg-green-500/10 rounded-md"
-                      title="Mark complete"
+                      className="p-2 text-green-500 hover:bg-green-500/10 rounded-md disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+                      title={outTime ? "Day has been ended" : "Mark complete"}
                     >
                       <Check size={17} />
                     </button>

@@ -282,6 +282,7 @@ const completeTask = async (taskId: string) => {
             onEdit={editTask}
             onDelete={deleteTask}
             onComplete={completeTask}
+            outTime={todayHistory?.outTime}
           />
 
 
