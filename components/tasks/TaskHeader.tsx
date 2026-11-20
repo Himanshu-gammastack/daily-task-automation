@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, LogOut } from "lucide-react";
 
 interface Props {
   dark: boolean;
@@ -14,6 +14,7 @@ interface Props {
   onStartDay: () => void;
   onEndDay: () => void;
   onToggleTheme: () => void;
+  onLogout: () => void;
 }
 
 export default function TaskHeader({
@@ -27,6 +28,7 @@ export default function TaskHeader({
   onStartDay,
   onEndDay,
   onToggleTheme,
+  onLogout,
 }: Props) {
   const theme = dark
     ? "bg-neutral-950 text-white border-neutral-800"
@@ -45,14 +47,13 @@ export default function TaskHeader({
         <h1 className="text-xl font-semibold">
           Daily Task Tracker
         </h1>
-
         <p className={`text-sm mt-1 ${muted}`}>
           {today}
         </p>
       </div>
 
-      {/* Center: End Day */}
-      <div className="flex justify-start md:justify-center">
+      {/* Center: End Day and Zoho */}
+      <div className="flex flex-wrap items-center justify-start md:justify-center gap-2">
         {hasStarted && !outTime && (
           <button
             onClick={onEndDay}
@@ -62,11 +63,16 @@ export default function TaskHeader({
             {loading ? "Processing..." : "End Day"}
           </button>
         )}
-      <a href="https://accounts.zoho.in/oauth/v2/auth?client_id=1000.Q6WQEMDHFVL6OPMRT5T962SEOXTWOE&response_type=code&redirect_uri=http://localhost:3000/zoho/callback&scope=ZohoMail.messages.CREATE,ZohoSheet.dataAPI.UPDATE,ZohoMail.accounts.READ&access_type=offline&prompt=consent" className={`border rounded-md px-5 py-2 text-sm mx-5 font-medium ${theme} disabled:opacity-50`}>Connect with ZOHO</a>
-      </div>
-      
 
-      {/* Right: In-Time and Theme */}
+        <a
+          href="https://accounts.zoho.in/oauth/v2/auth?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=http://localhost:3000/zoho/callback&scope=ZohoMail.messages.CREATE,ZohoSheet.dataAPI.UPDATE,ZohoMail.accounts.READ&access_type=offline&prompt=consent"
+          className={`border rounded-md px-5 py-2 text-sm font-medium ${theme}`}
+        >
+          Connect with Zoho
+        </a>
+      </div>
+
+      {/* Right: In-Time, Theme and Logout */}
       <div className="flex items-center justify-start md:justify-end gap-3">
         {!hasStarted ? (
           <div className="flex items-center gap-2">
@@ -96,8 +102,19 @@ export default function TaskHeader({
           onClick={onToggleTheme}
           className={`border rounded-md p-2 ${theme}`}
           aria-label="Toggle theme"
+          title="Toggle theme"
         >
           {dark ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
+
+        <button
+          onClick={onLogout}
+          disabled={loading}
+          className={`border rounded-md p-2 ${theme} disabled:opacity-50`}
+          aria-label="Logout"
+          title="Logout"
+        >
+          <LogOut size={18} />
         </button>
       </div>
     </header>

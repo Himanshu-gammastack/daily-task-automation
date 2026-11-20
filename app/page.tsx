@@ -151,6 +151,24 @@ export default function Todo() {
     }
   };
 
+
+  const logout = async () => {
+    try {
+      const res = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+    
+      if (!res.ok) {
+        throw new Error("Logout failed");
+      }
+    
+      window.location.href = "/login";
+    } catch (error) {
+      alert("Could not log out. Please try again.");
+    }
+  };
+  
+
   // End day
   const endDay = async () => {
     if (!confirm("Are you sure you want to end your day?")) {
@@ -271,7 +289,6 @@ const completeTask = async (taskId: string) => {
           inTime={todayHistory?.inTime || inTime}
           outTime={todayHistory?.outTime}
           hasStarted={!!todayHistory?.inTime}
-          userData={userData}
           onInTimeChange={setInTime}
           onStartDay={startDay}
           onEndDay={endDay}
