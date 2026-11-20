@@ -66,8 +66,16 @@ export default function PendingTasks({
           </p>
         ) : (
           tasks.map((task) => (
+            // <div
+            //   key={task._id}
+            //   data-testid="pending-task-row"
+            //   className={`py-4 border-b flex items-center justify-between gap-3 ${
+            //     dark ? "border-neutral-800" : "border-neutral-100"
+            //   }`}
+            // >
             <div
               key={task._id}
+              data-testid="pending-task-row"
               className={`py-4 border-b flex items-center justify-between gap-3 ${
                 dark ? "border-neutral-800" : "border-neutral-100"
               }`}

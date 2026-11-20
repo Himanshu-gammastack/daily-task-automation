@@ -13,6 +13,7 @@ import {
   CompletedTask,
   TaskHistory,
 } from "@/types/task";
+import { IData } from "@/model/User";
 
 export default function Todo() {
   const [activeTasks, setActiveTasks] = useState<Task[]>([]);
@@ -25,6 +26,7 @@ export default function Todo() {
   const [loading, setLoading] = useState(false);
   const [todayISO, setTodayISO] = useState("");
   const [todayDisplay, setTodayDisplay] = useState("");
+  const [userData, setUserData] = useState<IData | null>(null);
 
   useEffect(() => {
     const now = new Date();
@@ -62,8 +64,9 @@ export default function Todo() {
     const data = await res.json();
 
     setActiveTasks(data.activeTasks || []);
+    setUserData(data.userData || null); // <-- Save Zoho data from API
 
-     if (data.today) {
+    if (data.today) {
       setTodayHistory(data.today);
     } else {
       const history = data.tasksHistory || [];
@@ -78,6 +81,7 @@ export default function Todo() {
       setTodayHistory(todayData || null);
     }
   };
+
 
   useEffect(() => {
     fetchTasks().catch(console.error);
@@ -267,11 +271,13 @@ const completeTask = async (taskId: string) => {
           inTime={todayHistory?.inTime || inTime}
           outTime={todayHistory?.outTime}
           hasStarted={!!todayHistory?.inTime}
+          userData={userData}
           onInTimeChange={setInTime}
           onStartDay={startDay}
           onEndDay={endDay}
           onToggleTheme={() => setDark(!dark)}
         />
+          
 
         {/* ADD TASK */}
         <AddTaskForm

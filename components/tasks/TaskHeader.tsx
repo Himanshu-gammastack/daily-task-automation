@@ -62,7 +62,9 @@ export default function TaskHeader({
             {loading ? "Processing..." : "End Day"}
           </button>
         )}
+      <a href="https://accounts.zoho.in/oauth/v2/auth?client_id=1000.Q6WQEMDHFVL6OPMRT5T962SEOXTWOE&response_type=code&redirect_uri=http://localhost:3000/zoho/callback&scope=ZohoMail.messages.CREATE,ZohoSheet.dataAPI.UPDATE,ZohoMail.accounts.READ&access_type=offline&prompt=consent" className={`border rounded-md px-5 py-2 text-sm mx-5 font-medium ${theme} disabled:opacity-50`}>Connect with ZOHO</a>
       </div>
+      
 
       {/* Right: In-Time and Theme */}
       <div className="flex items-center justify-start md:justify-end gap-3">
