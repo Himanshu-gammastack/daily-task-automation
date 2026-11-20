@@ -26,7 +26,7 @@ export default function Todo() {
   const [loading, setLoading] = useState(false);
   const [todayISO, setTodayISO] = useState("");
   const [todayDisplay, setTodayDisplay] = useState("");
-  const [userData, setUserData] = useState<IData | null>(null);
+  const [zohoConnected, setZohoConnected] = useState(false);
 
   useEffect(() => {
     const now = new Date();
@@ -64,7 +64,6 @@ export default function Todo() {
     const data = await res.json();
 
     setActiveTasks(data.activeTasks || []);
-    setUserData(data.userData || null); // <-- Save Zoho data from API
 
     if (data.today) {
       setTodayHistory(data.today);
@@ -79,6 +78,12 @@ export default function Todo() {
       );
 
       setTodayHistory(todayData || null);
+    }
+    const zohoRes = await fetch("/api/auth/zoho");
+  
+    if (zohoRes.ok) {
+      const zohoData = await zohoRes.json();
+      setZohoConnected(zohoData.zohoConnected);
     }
   };
 
@@ -157,17 +162,17 @@ export default function Todo() {
       const res = await fetch("/api/auth/logout", {
         method: "POST",
       });
-    
+
       if (!res.ok) {
         throw new Error("Logout failed");
       }
-    
+
       window.location.href = "/login";
     } catch (error) {
       alert("Could not log out. Please try again.");
     }
   };
-  
+
 
   // End day
   const endDay = async () => {
@@ -289,10 +294,12 @@ const completeTask = async (taskId: string) => {
           inTime={todayHistory?.inTime || inTime}
           outTime={todayHistory?.outTime}
           hasStarted={!!todayHistory?.inTime}
+          userData={zohoConnected}
           onInTimeChange={setInTime}
           onStartDay={startDay}
           onEndDay={endDay}
           onToggleTheme={() => setDark(!dark)}
+          onLogout={logout}
         />
           
 

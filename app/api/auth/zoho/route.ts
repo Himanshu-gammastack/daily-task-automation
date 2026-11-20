@@ -1,3 +1,4 @@
+import { getUser } from "@/utils/auth";
 import { NextResponse, NextRequest } from "next/server";
 import {connectDB} from "@/utils/db"; 
 import User from "@/model/User";
@@ -97,14 +98,12 @@ export async function POST(req: Request) {
   }
 }
 
-import {  } from "next/server";
-import { getUser } from "@/utils/auth";
 
 export async function GET(req: NextRequest) {
   try {
-    const authUser = await getUser(req);
+    const userId = getUser(req);
 
-    if (!authUser) {
+    if (!userId) {
       return NextResponse.json(
         { message: "Unauthorized" },
         { status: 401 }
@@ -112,10 +111,6 @@ export async function GET(req: NextRequest) {
     }
 
     await connectDB();
-
-    // Use the same user ID property that your existing
-    // authenticated API routes use.
-    const userId = authUser.userId;
 
     const user = await User.findById(userId)
       .select("data.refreshToken data.accountsId")
