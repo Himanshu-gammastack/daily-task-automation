@@ -14,9 +14,9 @@ jest.mock("@/utils/auth", () => ({
 }));
 
 jest.mock("@/model/Tasks", () => {
-  const MockTask = jest.fn();
-
-  MockTask.findOne = jest.fn();
+  const MockTask = Object.assign(jest.fn(), {
+    findOne: jest.fn(),
+  });
 
   return {
     __esModule: true,
@@ -26,7 +26,7 @@ jest.mock("@/model/Tasks", () => {
 
 const mockedGetUser = jest.mocked(getUser);
 const mockedConnectDB = jest.mocked(connectDB);
-const MockTask = Task as jest.Mock & {
+const MockTask = Task as unknown as jest.Mock & {
   findOne: jest.Mock;
 };
 
@@ -166,7 +166,15 @@ describe("POST /api/startDay", () => {
       taskList: [],
     };
 
-    const existingTask = {
+    const existingTask: {
+      tasksHistory: {
+        date: Date;
+        inTime: string;
+        outTime: string;
+        taskList: unknown[];
+      }[];
+      save: jest.Mock;
+    } = {
       tasksHistory: [existingHistory],
       save: mockSave,
     };
