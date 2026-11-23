@@ -35,8 +35,18 @@ export default function TodoHeader({
   const theme = dark
     ? "bg-neutral-950 text-white border-neutral-800"
     : "bg-white text-neutral-900 border-neutral-200";
+  
+    const params = new URLSearchParams({
+    client_id: process.env.ZOHO_CLIENT_ID!,
+    response_type: "code",
+    redirect_uri: process.env.ZOHO_REDIRECT_URI!,
+    scope: process.env.ZOHO_ACCOUNT_SCOPE!,
+    access_type: "offline",
+    prompt: "consent",
+  });
 
   const muted = dark ? "text-neutral-400" : "text-neutral-500";
+  const url = `https://accounts.zoho.in/oauth/v2/auth?${params}`;
 
   return (
     <header
@@ -58,7 +68,7 @@ export default function TodoHeader({
       <div className="flex justify-start md:justify-center">
         {!userData ? (
           <a
-            href='https://accounts.zoho.in/oauth/v2/auth?client_id=1000.Q6WQEMDHFVL6OPMRT5T962SEOXTWOE&response_type=code&redirect_uri=http://localhost:3000/zoho/callback&scope=ZohoMail.messages.CREATE,ZohoSheet.dataAPI.UPDATE,ZohoMail.accounts.READ&access_type=offline&prompt=consent'
+            href= {url}
             className={`border rounded-md px-5 py-2 text-sm font-medium ${theme}`}
           >
             Connect with Zoho
