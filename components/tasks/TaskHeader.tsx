@@ -35,18 +35,10 @@ export default function TodoHeader({
   const theme = dark
     ? "bg-neutral-950 text-white border-neutral-800"
     : "bg-white text-neutral-900 border-neutral-200";
-  
-    const params = new URLSearchParams({
-    client_id: process.env.ZOHO_CLIENT_ID!,
-    response_type: "code",
-    redirect_uri: process.env.ZOHO_REDIRECT_URI!,
-    scope: process.env.ZOHO_ACCOUNT_SCOPE!,
-    access_type: "offline",
-    prompt: "consent",
-  });
 
   const muted = dark ? "text-neutral-400" : "text-neutral-500";
-  const url = `https://accounts.zoho.in/oauth/v2/auth?${params}`;
+  
+  const url = `/api/auth/zoho/connect`;
 
   return (
     <header
